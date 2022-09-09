@@ -1,8 +1,8 @@
 <script setup lang="ts">
-const search = ref("Toronto");
+const search = ref("Nashville");
 const input = ref("");
 const { data: city, error } = useFetch(
-    `https://api.openweathermap.org/data/2.5/weather?q=${search.value}&units=metric&appid=64e28f64b16b0f6cfeea0039ad3536da`
+    () => `https://api.openweathermap.org/data/2.5/weather?q=${search.value}&units=imperial&appid=bc15d706454b2398bad23d70b8b3e761`
 );
 const handleClick = () => {
   const formatedSearch = input.value.trim().split(" ").join("+");
