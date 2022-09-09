@@ -1,14 +1,23 @@
 <script setup lang="ts">
-import {useAsyncData} from "#app";
+import {useAsyncData, useRuntimeConfig} from "#app";
 
-const search = ref("Nashville");
+const cookie = useCookie("city");
+
+const config = useRuntimeConfig()
+
+if(!cookie.value) cookie.value = "Nashville"
+
+const search = ref(cookie.value);
 const input = ref("");
 const background = ref("")
 
 // const { data: city, error } = useFetch(
 //     () =>
-//         `https://api.openweathermap.org/data/2.5/weather?q=${search.value}&units=imperial&appid=bc15d706454b2398bad23d70b8b3e761`
+//         `https://api.openweathermap.org/data/2.5/weather?q=${search.value}&units=imperial&appid=0e27653d2235c9cdcb5b9fb08741a7e0`
 // );
+
+// this is better than useFetch for this instance because we want to do more that fetch data from api; we also need to evaluate temp
+// to set bg color
 
 const { data: city, error } = useAsyncData(
     "city",
@@ -16,8 +25,17 @@ const { data: city, error } = useAsyncData(
       let response;
       try {
         response = await $fetch(
-            `https://api.openweathermap.org/data/2.5/weather?q=${search.value}&units=imperial&appid=bc15d706454b2398bad23d70b8b3e761`,
+            `https://api.openweathermap.org/data/2.5/weather?q=${search.value}`,
+            {
+            params: {
+              units: "imperial",
+              appid: config.WEATHER_APP_SECRET
+              },
+            }
+
         );
+
+        cookie.value = search.value;
 
         const temp = response.main.temp;
         if (temp <= 30) {
@@ -34,6 +52,7 @@ const { data: city, error } = useAsyncData(
               "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=3546&q=80";
         }
       } catch (e) {}
+
       return response;
     },
     {
@@ -52,7 +71,7 @@ const handleClick = () => {
 <template>
   <div class="h-screen relative overflow-hidden">
     <img :src="background"/>
-    {{ search }}
+<!--    {{ search }}-->
     <div class="absolute w-full h-full top-0 overlay" />
     <div class="absolute w-full h-full top-0 p-48">
       <div class="flex justify-between">
